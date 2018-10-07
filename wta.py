@@ -3,6 +3,8 @@ from simulatedannealing import SimulatedAnnealing
 import sys, numpy, random
 
 
+numberofinstances = 0
+
 def readdataset(datasetpath):
 	dataset = []
 	file = open(datasetpath,'r')
@@ -13,13 +15,11 @@ def readdataset(datasetpath):
 
 	return fixdataset(dataset)
 
-
 def fixdataset(dataset):
 	newdataset = []
 	numberofinstances = int(dataset[0])
 	j = 1
 	row = []
-	print('opa que?\n',dataset,'\n\n')
 	for i in range(0,numberofinstances):
 		row.append(dataset[j])
 		j+=1
@@ -49,18 +49,26 @@ def makeGraphics():
 	#TODO
 
 
+generate_testnodes(dataset):
+	test_nodes = {}
+	for i in range(0,numberofinstances):
+		test_nodes[i] = dataset[:,i]
+	return test_nodes
+
+def distance(start,end):
+
+
 print('\nHello!')
 
 print('\nOpening archive:', sys.argv[1])
 dataset  = readdataset(sys.argv[1])
-print('\nDataset:\n', dataset)
-'''
-print('\nAnt Colony:')
-result = antcolonyMetaheuristic(data)
-presentResult(result)
-print('continue and make graphic?')
-makeGraphics()
 
+print('\nAnt Colony:')
+test_nodes = generate_testnodes(dataset)
+colony = ant_colony(test_nodes,distance)
+answer = colony.mainloop()
+
+'''
 print('\nSimulated Annealing:')
 result = SM_Metaheuristic(data)
 presentResult(result)
