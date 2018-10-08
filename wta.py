@@ -29,15 +29,13 @@ def fixdataset(dataset):
 	while j < len(dataset):
 		row =[]
 		k=0
-		while j+k<len(dataset) and k<numberofinstances:
+		while j<len(dataset) and k<numberofinstances:
 			row.append(dataset[j])
 			k+=1
 			j+=1
 		newdataset.append(row)
-		j+=1
 
-	print('opa que?\n',newdataset,'\n\n')
-	newdataset = numpy.matrix(newdataset)
+
 	return newdataset
 
 def presentResult():
@@ -48,15 +46,17 @@ def makeGraphics():
 	pass
 	#TODO
 
-
-generate_testnodes(dataset):
+def generate_testnodes(dataset):
 	test_nodes = {}
-	for i in range(0,numberofinstances):
-		test_nodes[i] = dataset[:,i]
+	k = 0
+	for i in range(1,len(dataset)):
+		for j in range(0,len(dataset[0])):
+				test_nodes[k]= (dataset[i][j],dataset[0][j])
+				k+=1
 	return test_nodes
 
 def distance(start,end):
-
+	return (start[1]*(1 - start[0])- end[1]*(1 - end[0]))**2
 
 print('\nHello!')
 
@@ -65,6 +65,7 @@ dataset  = readdataset(sys.argv[1])
 
 print('\nAnt Colony:')
 test_nodes = generate_testnodes(dataset)
+
 colony = ant_colony(test_nodes,distance)
 answer = colony.mainloop()
 
