@@ -49,24 +49,33 @@ def makeGraphics():
 def generate_testnodes(dataset):
 	test_nodes = {}
 	k = 0
-	for i in range(1,len(dataset)):
+	for i in range(1,len(dataset)): #  i=arma, j=alvo
 		for j in range(0,len(dataset[0])):
-				test_nodes[k]= (dataset[i][j],dataset[0][j])
+				test_nodes[k]= (dataset[i][j],dataset[0][j],i,j)
 				k+=1
 	return test_nodes
 
-def distance(start,end):
-	return (start[1]*(1 - start[0])- end[1]*(1 - end[0]))**2
+def distance(start,end,nodes):
+	distance = 0
+	for key in nodes:
+
+	distance = 
+	return distance
 
 print('\nHello!')
 
 print('\nOpening archive:', sys.argv[1])
 dataset  = readdataset(sys.argv[1])
+print('\ndataset:\n',dataset,'\n')
+
+alpha = float(sys.argv[2])
+beta = float(sys.argv[3])
+ant_count = int(sys.argv[4])
 
 print('\nAnt Colony:')
 test_nodes = generate_testnodes(dataset)
-
-colony = ant_colony(test_nodes,distance)
+print('\ntestnodes:\n',test_nodes,'\n')
+colony = ant_colony(test_nodes,distance,alpha= alpha, beta = beta, ant_count= ant_count ,iterations = 5,target_count = numberofinstances)
 answer = colony.mainloop()
 
 '''

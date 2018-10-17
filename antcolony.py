@@ -2,7 +2,7 @@ from threading import Thread
 
 class ant_colony:
 	class ant(Thread):
-		def __init__(self, init_location, possible_locations, pheromone_map, distance_callback, alpha, beta, first_pass=False):
+		def __init__(self, init_location, possible_locations, pheromone_map, distance_callback, alpha, beta, nodes,target_count, first_pass=False):
 			"""
 			initialized an ant, to traverse the map
 			init_location -> marks where in the map that the ant starts
@@ -32,6 +32,8 @@ class ant_colony:
 			self.distance_callback = distance_callback
 			self.alpha = alpha
 			self.beta = beta
+			self.nodes = nodes
+			self.target_count = target_count
 			self.first_pass = first_pass
 
 			#append start location to route, before doing random walk
@@ -50,7 +52,9 @@ class ant_colony:
 				do pheromone updates
 				check for new possible optimal solution with this ants latest tour
 			"""
-			while self.possible_locations:
+			#TODO
+			for i in range(0,self.target_count):
+			#while self.possible_locations:
 				next = self._pick_path()
 				self._traverse(self.location, next)
 
@@ -139,13 +143,16 @@ class ant_colony:
 			called from _traverse() & __init__()
 			"""
 			self.route.append(new)
-			list(self.possible_locations).remove(new)
+
+			for possible_location in self.possible_locations:
+				if self.nodes[possible_location][3] == self.nodes[new][3]:
+					list(self.possible_locations).remove(new)
 
 		def _update_distance_traveled(self, start, end):
 			"""
 			use self.distance_callback to update self.distance_traveled
 			"""
-			self.distance_traveled += float(self.distance_callback(start, end))
+			self.distance_traveled += float(self.distance_callback(start , end , nodes))
 
 		def get_route(self):
 			if self.tour_complete:
@@ -157,7 +164,7 @@ class ant_colony:
 				return self.distance_traveled
 			return None
 
-	def __init__(self, nodes, distance_callback, start=None, ant_count=50, alpha=.5, beta=1.2,  pheromone_evaporation_coefficient=.40, pheromone_constant=1000.0, iterations=80):
+	def __init__(self, nodes, distance_callback,target_count, start=None,ant_count=50, alpha=.5, beta=1.2,  pheromone_evaporation_coefficient=.40, pheromone_constant=1000.0, iterations=80):
 		"""
 		initializes an ant colony (houses a number of worker ants that will traverse a map to find an optimal route as per ACO [Ant Colony Optimization])
 		source: https://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms
@@ -228,6 +235,7 @@ class ant_colony:
 			raise TypeError("distance_callback is not callable, should be method")
 
 		self.distance_callback = distance_callback
+		self.target_count = target_count
 
 		#start
 		if start is None:
@@ -352,10 +360,10 @@ class ant_colony:
 		#allocate new ants on the first pass
 		if self.first_pass:
 			return [self.ant(start, self.nodes.keys(), self.pheromone_map, self._get_distance,
-				self.alpha, self.beta, first_pass=True) for x in range(self.ant_count)]
+				self.alpha, self.beta,self.nodes, self.target_count, first_pass=True) for x in range(self.ant_count)]
 		#else, just reset them to use on another pass
 		for ant in self.ants:
-			ant.__init__(start, self.nodes.keys(), self.pheromone_map, self._get_distance, self.alpha, self.beta)
+			ant.__init__(start, self.nodes.keys(), self.pheromone_map, self._get_distance, self.alpha, self.beta,self.nodes,self.target_count)
 
 	def _update_pheromone_map(self):
 		"""
