@@ -53,8 +53,8 @@ class ant_colony:
 				check for new possible optimal solution with this ants latest tour
 			"""
 			#TODO
-			for i in range(0,self.target_count):
-			#while self.possible_locations:
+			for i in range(0,self.target_count-1):
+				print('possibles:',self.possible_locations)
 				next = self._pick_path()
 				self._traverse(self.location, next)
 
@@ -72,6 +72,7 @@ class ant_colony:
 				import random
 				return random.choice(list(self.possible_locations))
 
+
 			attractiveness = dict()
 			sum_total = 0.0
 			#for each possible location, find its attractiveness (it's (pheromone amount)*1/distance [tau*eta, from the algortihm])
@@ -79,7 +80,8 @@ class ant_colony:
 			for possible_next_location in self.possible_locations:
 				#NOTE: do all calculations as float, otherwise we get integer division at times for really hard to track down bugs
 				pheromone_amount = float(self.pheromone_map[self.location][possible_next_location])
-				distance = float(self.distance_callback(self.location, possible_next_location))
+				distance = float(self.distance_callback(self.location, possible_next_location,self.nodes	))
+
 
 				#tau^alpha * eta^beta
 				attractiveness[possible_next_location] = pow(pheromone_amount, self.alpha)*pow(1/distance, self.beta)
@@ -122,6 +124,7 @@ class ant_colony:
 			for possible_next_location in attractiveness:
 				weight = (attractiveness[possible_next_location] / sum_total)
 				if toss <= weight + cummulative:
+
 					return possible_next_location
 				cummulative += weight
 
@@ -144,15 +147,15 @@ class ant_colony:
 			"""
 			self.route.append(new)
 
-			for possible_location in self.possible_locations:
+			for possible_location in list(self.possible_locations)[:]:
 				if self.nodes[possible_location][3] == self.nodes[new][3]:
-					list(self.possible_locations).remove(new)
+					self.possible_locations.remove(possible_location)
 
 		def _update_distance_traveled(self, start, end):
 			"""
 			use self.distance_callback to update self.distance_traveled
 			"""
-			self.distance_traveled += float(self.distance_callback(start , end , nodes))
+			self.distance_traveled += float(self.distance_callback(start , end , self.nodes))
 
 		def get_route(self):
 			if self.tour_complete:
@@ -305,14 +308,14 @@ class ant_colony:
 		self.shortest_distance = None
 		self.shortest_path_seen = None
 
-	def _get_distance(self, start, end):
+	def _get_distance(self, start, end,nodes):
 		"""
 		uses the distance_callback to return the distance between nodes
 		if a distance has not been calculated before, then it is populated in distance_matrix and returned
 		if a distance has been called before, then its value is returned from distance_matrix
 		"""
 		if not self.distance_matrix[start][end]:
-			distance = self.distance_callback(self.nodes[start], self.nodes[end])
+			distance = self.distance_callback(self.nodes[start], self.nodes[end],self.nodes)
 
 			if (type(distance) is not int) and (type(distance) is not float):
 				raise TypeError("distance_callback should return either int or float, saw: "+ str(type(distance)))
@@ -331,7 +334,7 @@ class ant_colony:
 		id_to_values = dict()
 
 		id = 0
-		for key in sorted(nodes.keys()):
+		for key in sorted(list(nodes)):
 			id_to_key[id] = key
 			id_to_values[id] = nodes[key]
 			id += 1
@@ -359,11 +362,11 @@ class ant_colony:
 		"""
 		#allocate new ants on the first pass
 		if self.first_pass:
-			return [self.ant(start, self.nodes.keys(), self.pheromone_map, self._get_distance,
+			return [self.ant(start, list(self.nodes), self.pheromone_map, self._get_distance,
 				self.alpha, self.beta,self.nodes, self.target_count, first_pass=True) for x in range(self.ant_count)]
 		#else, just reset them to use on another pass
 		for ant in self.ants:
-			ant.__init__(start, self.nodes.keys(), self.pheromone_map, self._get_distance, self.alpha, self.beta,self.nodes,self.target_count)
+			ant.__init__(start, list(self.nodes), self.pheromone_map, self._get_distance, self.alpha, self.beta,self.nodes,self.target_count)
 
 	def _update_pheromone_map(self):
 		"""

@@ -16,6 +16,7 @@ def readdataset(datasetpath):
 	return fixdataset(dataset)
 
 def fixdataset(dataset):
+	global numberofinstances
 	newdataset = []
 	numberofinstances = int(dataset[0])
 	j = 1
@@ -49,40 +50,35 @@ def makeGraphics():
 def generate_testnodes(dataset):
 	test_nodes = {}
 	k = 0
-	for i in range(1,len(dataset)): #  i=arma, j=alvo
+	for i in range(1,len(dataset)): # (prob_de_acerto, valor_alvo ,arma ,alvo)
 		for j in range(0,len(dataset[0])):
 				test_nodes[k]= (dataset[i][j],dataset[0][j],i,j)
 				k+=1
 	return test_nodes
 
 def distance(start,end,nodes):
-	distance = 0
-	for key in nodes:
 
-	distance = 
-	return distance
+	return end[0]*end[1]
 
 print('\nHello!')
 
 print('\nOpening archive:', sys.argv[1])
 dataset  = readdataset(sys.argv[1])
-print('\ndataset:\n',dataset,'\n')
+#print('\ndataset:\n',dataset,'\n')
 
 alpha = float(sys.argv[2])
 beta = float(sys.argv[3])
 ant_count = int(sys.argv[4])
 
-print('\nAnt Colony:')
+print('Ant Colony:')
 test_nodes = generate_testnodes(dataset)
-print('\ntestnodes:\n',test_nodes,'\n')
+#print('\ntestnodes:\n',test_nodes,'\n')
+
+global numberofinstances
+
 colony = ant_colony(test_nodes,distance,alpha= alpha, beta = beta, ant_count= ant_count ,iterations = 5,target_count = numberofinstances)
 answer = colony.mainloop()
+print('menor caminho: ',answer)
 
-'''
-print('\nSimulated Annealing:')
-result = SM_Metaheuristic(data)
-presentResult(result)
-print('continue and make graphic?')
-makeGraphics()
-'''
-print('Bye, bye.\n')
+
+print('\nBye, bye.\n')
