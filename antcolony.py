@@ -35,6 +35,7 @@ class ant_colony:
 			self.nodes = nodes
 			self.target_count = target_count
 			self.first_pass = first_pass
+			self.probvalue_list = []
 
 			#append start location to route, before doing random walk
 			self._update_route(init_location)
@@ -54,7 +55,7 @@ class ant_colony:
 			"""
 			#TODO
 			for i in range(0,self.target_count-1):
-				print('possibles:',self.possible_locations)
+				#print('possibles:',self.possible_locations)
 				next = self._pick_path()
 				self._traverse(self.location, next)
 
@@ -80,7 +81,7 @@ class ant_colony:
 			for possible_next_location in self.possible_locations:
 				#NOTE: do all calculations as float, otherwise we get integer division at times for really hard to track down bugs
 				pheromone_amount = float(self.pheromone_map[self.location][possible_next_location])
-				distance = float(self.distance_callback(self.location, possible_next_location,self.nodes	))
+				distance = float(self.distance_callback(self.location, possible_next_location,self.nodes,self.probvalue_list))
 
 
 				#tau^alpha * eta^beta
@@ -155,7 +156,7 @@ class ant_colony:
 			"""
 			use self.distance_callback to update self.distance_traveled
 			"""
-			self.distance_traveled += float(self.distance_callback(start , end , self.nodes))
+			self.distance_traveled += float(self.distance_callback(start , end , self.nodes,self.probvalue_list))
 
 		def get_route(self):
 			if self.tour_complete:
@@ -308,14 +309,14 @@ class ant_colony:
 		self.shortest_distance = None
 		self.shortest_path_seen = None
 
-	def _get_distance(self, start, end,nodes):
+	def _get_distance(self, start, end,nodes,probvalue_list):
 		"""
 		uses the distance_callback to return the distance between nodes
 		if a distance has not been calculated before, then it is populated in distance_matrix and returned
 		if a distance has been called before, then its value is returned from distance_matrix
 		"""
 		if not self.distance_matrix[start][end]:
-			distance = self.distance_callback(self.nodes[start], self.nodes[end],self.nodes)
+			distance = self.distance_callback(self.nodes[start], self.nodes[end],self.nodes,probvalue_list)
 
 			if (type(distance) is not int) and (type(distance) is not float):
 				raise TypeError("distance_callback should return either int or float, saw: "+ str(type(distance)))
@@ -362,7 +363,8 @@ class ant_colony:
 		"""
 		#allocate new ants on the first pass
 		if self.first_pass:
-			return [self.ant(start, list(self.nodes), self.pheromone_map, self._get_distance,
+			from numpy.random import randint
+			return [self.ant(randint(0, len(self.nodes)), list(self.nodes), self.pheromone_map, self._get_distance,
 				self.alpha, self.beta,self.nodes, self.target_count, first_pass=True) for x in range(self.ant_count)]
 		#else, just reset them to use on another pass
 		for ant in self.ants:

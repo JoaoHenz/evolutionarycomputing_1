@@ -1,8 +1,10 @@
 from antcolony import ant_colony
 from simulatedannealing import SimulatedAnnealing
 import sys, numpy, random
+from pylab import figure, axes, pie, title, show
+import matplotlib.pyplot as plt
 
-
+global numberofinstances
 numberofinstances = 0
 
 def readdataset(datasetpath):
@@ -57,28 +59,58 @@ def generate_testnodes(dataset):
 	return test_nodes
 
 def distance(start,end,nodes):
+	global targets_value
+	distance_probability = [1]*numberofinstances
 
-	return end[0]*end[1]
+	distance_probability[start[3]] *= (1 - start[0])
+	distance_probability[end[3]] *= (1 - end[0])
 
-print('\nHello!')
+	distance = 0
+	for i in range(numberofinstances):
+		distance += distance_probability[i] * targets_value[i]
 
-print('\nOpening archive:', sys.argv[1])
+	return distance
+
+
+print ('\nHello!')
+
+print ('\nOpening archive:', sys.argv[1])
 dataset  = readdataset(sys.argv[1])
 #print('\ndataset:\n',dataset,'\n')
 
 alpha = float(sys.argv[2])
 beta = float(sys.argv[3])
 ant_count = int(sys.argv[4])
+iterations = int(sys.argv[5])
 
-print('Ant Colony:')
+print ('\nAnt Colony:')
+print ('\talpha=', alpha, ', beta=', beta, 'ant_count=', ant_count, 'iterations=', iterations)
 test_nodes = generate_testnodes(dataset)
-#print('\ntestnodes:\n',test_nodes,'\n')
 
-global numberofinstances
+global targets_value
+targets_value = [dataset[0][i] for i in range(numberofinstances)]
+# Valor dos alvos
 
-colony = ant_colony(test_nodes,distance,alpha= alpha, beta = beta, ant_count= ant_count ,iterations = 5,target_count = numberofinstances)
+colony = ant_colony(test_nodes,distance,alpha= alpha, beta = beta, ant_count= ant_count ,iterations = iterations,target_count = numberofinstances)
 answer = colony.mainloop()
-print('menor caminho: ',answer)
+
+# Vetor das probabilidades de destruicao acumuladas de cada alvo
+targets_probability = [1]*numberofinstances
+
+print ('\nTestnodes:', len(test_nodes))
+for i, node in test_nodes.items():
+	if i in answer:
+		# Acumula a probabilidade de sobrevivencia
+		targets_probability[node[3]] *= (1 - node[0])
+
+
+answer_value = 0
+for i in range(numberofinstances):
+	answer_value += targets_probability[i] * targets_value[i]
+
+
+print ('\nMenor caminho: ', answer)
+print ('Valor do caminho: ', answer_value)
 
 
 print('\nBye, bye.\n')
