@@ -82,7 +82,7 @@ def distance(start,end,nodes,probvalue_list):
 
 	return distance
 
-def onetest(datasetpath,alpha=0.5,beta=1.2,ant_count=50,iterations=80,pheromone_evaporation_coefficient=.40,pheromone_constant = 1000.0):
+def onetest(datasetpath,alpha=0.5,beta=1.2,ant_count=50,iterations=40,pheromone_evaporation_coefficient=.40,pheromone_constant = 1000.0):
     #print ('\nHello!')
     dataset  = readdataset(datasetpath)
     #print ('\nAnt Colony:')
@@ -106,4 +106,4 @@ def onetest(datasetpath,alpha=0.5,beta=1.2,ant_count=50,iterations=80,pheromone_
     #print ('\nMenor caminho: ', answer)
     #print ('Valor do caminho: ', answer_value)
     #print('\nBye, bye.\n')
-    return Result(answer,answer_value,alpha,beta,ant_count,iterations)
+    return Result(answer,answer_value,alpha,beta,ant_count,iterations,pheromone_evaporation_coefficient,pheromone_constant)
