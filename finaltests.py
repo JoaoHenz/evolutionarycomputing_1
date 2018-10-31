@@ -1,7 +1,7 @@
 from wtapassive import *
 import os
 import pickle
-
+#usado para criar a tabela de comparacao com o artigo
 from result import *
 
 file = open('results_finais','wb')

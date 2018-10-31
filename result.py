@@ -10,3 +10,4 @@ class Result:
         self.pheromone_constant = pheromone_constant
         self.filename = ''
         self.testname = ''
+        self.standarddeviation = 0.0
